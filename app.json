@@ -12,10 +12,11 @@
       "supportsTablet": true
     },
 
-    "android": {
-      "package": "com.zaqnombre.vibecode",
-      "edgeToEdgeEnabled": true
-    },
+   "android": {
+  "package": "com.zaqnombre.vibecode",
+  "versionCode": 1,
+  "edgeToEdgeEnabled": true
+},
 
     "plugins": ["expo-router"],
     "experiments": {
