@@ -7,20 +7,26 @@
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
-
     "ios": {
       "supportsTablet": true
     },
-
-   "android": {
-  "package": "com.zaqnombre.vibecode",
-  "versionCode": 1,
-  "edgeToEdgeEnabled": true
-},
-
-    "plugins": ["expo-router"],
+    "android": {
+      "package": "com.zaqnombre.vibecode",
+      "versionCode": 1,
+      "edgeToEdgeEnabled": true
+    },
+    "plugins": [
+      "expo-router"
+    ],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "090ff57c-7051-4df7-b53e-60eaa2cfe0f6"
+      }
+    },
+    "owner": "znombre04"
   }
 }
