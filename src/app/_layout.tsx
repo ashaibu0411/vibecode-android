@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { syncE2ePublicKeyToProfile } from '@/lib/e2eMessaging';
 import { requestNotificationPermissions } from '@/lib/notifications';
 
 export const unstable_settings = {
@@ -35,12 +37,41 @@ function RootLayoutNav() {
     requestNotificationPermissions();
   }, []);
 
+  // Publish E2E public key after login / session restore so peers can encrypt DMs to you
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      const uid = session?.user?.id;
+      if (!uid) return;
+      syncE2ePublicKeyToProfile(uid).then((r) => {
+        if (!r.ok && __DEV__) {
+          console.warn('[E2E] Could not sync public key to profile:', r.error);
+        }
+      });
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      const uid = session?.user?.id;
+      if (!uid) return;
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        syncE2ePublicKeyToProfile(uid).then((r) => {
+          if (!r.ok && __DEV__) {
+            console.warn('[E2E] Could not sync public key to profile:', r.error);
+          }
+        });
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <ThemeProvider value={AfroConnectTheme}>
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="welcome" options={{ animation: 'fade' }} />
         <Stack.Screen name="location-select" options={{ animation: 'slide_from_right' }} />
+        <Stack.Screen name="auth-choice" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="signup" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="profile-setup" options={{ animation: 'slide_from_right' }} />
         <Stack.Screen name="onboarding" options={{ animation: 'fade' }} />

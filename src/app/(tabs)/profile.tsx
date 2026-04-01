@@ -15,6 +15,7 @@ export default function ProfileScreen() {
   const currentUser = useStore((s) => s.currentUser);
   const isGuest = useStore((s) => s.isGuest);
   const logout = useStore((s) => s.logout);
+  const setForceLoginOnLaunch = useStore((s) => s.setForceLoginOnLaunch);
   const userCreatedPosts = useStore((s) => s.userPosts);
   const savedPostIds = useStore((s) => s.savedPostIds);
   const connections = useStore((s) => s.connections);
@@ -47,7 +48,7 @@ export default function ProfileScreen() {
   const handleEditProfile = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     if (isGuest || !currentUser) {
-      router.push('/signup');
+      router.push('/auth-choice');
     } else {
       router.push('/profile-setup');
     }
@@ -71,13 +72,15 @@ export default function ProfileScreen() {
             try {
               await signOut();
               logout();
+              setForceLoginOnLaunch(true);
               Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              router.replace('/welcome');
+              router.replace('/signup?mode=signin' as any);
             } catch (error) {
               console.error('Logout error:', error);
               // Still logout locally even if Supabase fails
               logout();
-              router.replace('/welcome');
+              setForceLoginOnLaunch(true);
+              router.replace('/signup?mode=signin' as any);
             }
           },
         },
@@ -87,7 +90,7 @@ export default function ProfileScreen() {
 
   const handleSignUp = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    router.push('/signup');
+    router.push('/auth-choice');
   };
 
   return (

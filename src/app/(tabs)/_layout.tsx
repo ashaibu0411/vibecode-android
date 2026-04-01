@@ -1,5 +1,5 @@
-import React from 'react';
-import { Tabs } from 'expo-router';
+import React, { useEffect } from 'react';
+import { Tabs, router } from 'expo-router';
 import { View } from 'react-native';
 import { Image } from 'expo-image';
 import { Home, Calendar, PlusSquare, User, Users } from 'lucide-react-native';
@@ -8,6 +8,15 @@ import { useStore } from '@/lib/store';
 
 export default function TabLayout() {
   const currentUserAvatar = useStore((s) => s.currentUser?.avatar);
+  const currentUser = useStore((s) => s.currentUser);
+  const isGuest = useStore((s) => s.isGuest);
+  const forceLoginOnLaunch = useStore((s) => s.forceLoginOnLaunch);
+
+  useEffect(() => {
+    if (!forceLoginOnLaunch) return;
+    if (currentUser || isGuest) return;
+    router.replace('/signup?mode=signin' as any);
+  }, [forceLoginOnLaunch, currentUser, isGuest]);
 
   return (
     <Tabs

@@ -303,6 +303,9 @@ interface AppState {
   isOnboarded: boolean;
   isGuest: boolean;
   hasSeenWelcome: boolean;
+  // When a user explicitly logs out, we want the next app launch to start on the login screen.
+  // This stays false for first-time users so they can choose Guest/Sign up/Log in.
+  forceLoginOnLaunch: boolean;
 
   // Location state
   selectedLocation: LocationData | null;
@@ -360,6 +363,7 @@ interface AppState {
   setIsOnboarded: (value: boolean) => void;
   setIsGuest: (value: boolean) => void;
   setHasSeenWelcome: (value: boolean) => void;
+  setForceLoginOnLaunch: (value: boolean) => void;
   setSelectedLocation: (location: LocationData | null) => void;
   setCurrentCommunity: (community: Community | null) => void;
   setFeedFilter: (filter: 'local' | 'global') => void;
@@ -409,6 +413,7 @@ export const useStore = create<AppState>()(
       isOnboarded: false,
       isGuest: false,
       hasSeenWelcome: false,
+      forceLoginOnLaunch: false,
       selectedLocation: null,
       locationDetectionDismissed: false,
       lastDetectedCity: null,
@@ -433,10 +438,11 @@ export const useStore = create<AppState>()(
       inAppSalesCount: 0,
       notificationsEnabled: true,
 
-      setCurrentUser: (user) => set({ currentUser: user }),
+      setCurrentUser: (user) => set((state) => ({ currentUser: user, forceLoginOnLaunch: user ? false : state.forceLoginOnLaunch })),
       setIsOnboarded: (value) => set({ isOnboarded: value }),
-      setIsGuest: (value) => set({ isGuest: value }),
+      setIsGuest: (value) => set((state) => ({ isGuest: value, forceLoginOnLaunch: value ? false : state.forceLoginOnLaunch })),
       setHasSeenWelcome: (value) => set({ hasSeenWelcome: value }),
+      setForceLoginOnLaunch: (value) => set({ forceLoginOnLaunch: value }),
       setSelectedLocation: (location) => set({ selectedLocation: location }),
       setCurrentCommunity: (community) => set({ currentCommunity: community }),
       setFeedFilter: (filter) => set({ feedFilter: filter }),
@@ -592,7 +598,7 @@ export const useStore = create<AppState>()(
             : s
         ),
       })),
-      logout: () => set({ currentUser: null, isOnboarded: false, isGuest: false }),
+      logout: () => set({ currentUser: null, isOnboarded: false, isGuest: false, forceLoginOnLaunch: true }),
     }),
     {
       name: 'afroconnect-storage',
@@ -602,6 +608,7 @@ export const useStore = create<AppState>()(
         isOnboarded: state.isOnboarded,
         isGuest: state.isGuest,
         hasSeenWelcome: state.hasSeenWelcome,
+        forceLoginOnLaunch: state.forceLoginOnLaunch,
         selectedLocation: state.selectedLocation,
         locationDetectionDismissed: state.locationDetectionDismissed,
         lastDetectedCity: state.lastDetectedCity,

@@ -25,6 +25,8 @@ export interface DbUser {
   bio: string | null;
   location: string | null;
   interests: string[];
+  /** Base64 Curve25519 public key for 1:1 DM E2E (optional). */
+  e2e_public_key?: string | null;
   created_at: string;
 }
 

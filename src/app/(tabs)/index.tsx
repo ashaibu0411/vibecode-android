@@ -280,6 +280,12 @@ export default function HomeScreen() {
     }
 
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+
+    // If this was a new user using auto-detect, send them to the Guest / Sign up / Log in choice.
+    // Guests and signed-in users should just continue.
+    if (!currentUser && !isGuest) {
+      router.push('/auth-choice' as any);
+    }
   };
 
   // Handle keeping current location
@@ -483,7 +489,7 @@ export default function HomeScreen() {
               entering={FadeInUp.duration(500).delay(150)}
               className="mx-4 mb-4"
             >
-              <Pressable onPress={() => navigateTo('/signup')}>
+              <Pressable onPress={() => navigateTo('/auth-choice')}>
                 <LinearGradient
                   colors={['#C9A227', '#A6841F']}
                   start={{ x: 0, y: 0 }}

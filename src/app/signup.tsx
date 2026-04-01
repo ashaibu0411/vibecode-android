@@ -18,7 +18,7 @@ import {
 import { Image } from 'expo-image';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useStore } from '@/lib/store';
 import { signUpWithEmail, signInWithEmail, signUpWithPhone, verifyOtp, getProfile, getOrCreateProfile } from '@/lib/auth';
 
@@ -27,8 +27,11 @@ type AuthMode = 'signup' | 'signin';
 type PhoneStep = 'phone' | 'otp';
 
 export default function SignUpScreen() {
+  const { mode } = useLocalSearchParams<{ mode?: string }>();
+  const initialAuthMode: AuthMode = mode === 'signin' ? 'signin' : 'signup';
+
   const [authMethod, setAuthMethod] = useState<AuthMethod | null>(null);
-  const [authMode, setAuthMode] = useState<AuthMode>('signup');
+  const [authMode, setAuthMode] = useState<AuthMode>(initialAuthMode);
   const [phoneStep, setPhoneStep] = useState<PhoneStep>('phone');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -44,6 +47,7 @@ export default function SignUpScreen() {
   const setCurrentUser = useStore((s) => s.setCurrentUser);
   const setIsGuest = useStore((s) => s.setIsGuest);
   const setIsOnboarded = useStore((s) => s.setIsOnboarded);
+  const setForceLoginOnLaunch = useStore((s) => s.setForceLoginOnLaunch);
   const selectedLocation = useStore((s) => s.selectedLocation);
 
   // Get the name to use - display name if set, otherwise full name
@@ -89,6 +93,7 @@ export default function SignUpScreen() {
             email: email,
           });
           setIsGuest(false);
+          setForceLoginOnLaunch(false);
           setIsOnboarded(true);
           router.replace('/profile-setup');
         }
@@ -112,6 +117,7 @@ export default function SignUpScreen() {
             email: email,
           });
           setIsGuest(false);
+          setForceLoginOnLaunch(false);
           setIsOnboarded(true);
           router.replace('/(tabs)');
         }
@@ -174,6 +180,7 @@ export default function SignUpScreen() {
           phone: phone,
         });
         setIsGuest(false);
+        setForceLoginOnLaunch(false);
         setIsOnboarded(true);
 
         // For login, go to home. For signup, go to profile setup.
@@ -317,7 +324,10 @@ export default function SignUpScreen() {
         <Pressable
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.back();
+            setForceLoginOnLaunch(false);
+            setIsGuest(true);
+            setIsOnboarded(true);
+            router.replace('/(tabs)');
           }}
           className="items-center py-4"
         >

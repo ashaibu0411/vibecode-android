@@ -206,8 +206,21 @@ export default function LocationSelectScreen() {
       }
     }
 
-    setIsGuest(true);
-    router.replace('/(tabs)');
+    // If user is changing location, just return to the app.
+    if (isChangingLocation) {
+      router.replace('/(tabs)');
+      return;
+    }
+
+    // New users should choose Guest vs Sign up/Log in next.
+    const user = await getCurrentUser();
+    if (user) {
+      setIsGuest(false);
+      router.replace('/(tabs)');
+    } else {
+      setIsGuest(false);
+      router.replace('/auth-choice');
+    }
   };
 
   const handleBack = () => {
@@ -283,8 +296,21 @@ export default function LocationSelectScreen() {
       }
     }
 
-    setIsGuest(true);
-    router.replace('/(tabs)');
+    // If user is changing location, just return to the app.
+    if (isChangingLocation) {
+      router.replace('/(tabs)');
+      return;
+    }
+
+    // New users should choose Guest vs Sign up/Log in next.
+    const user = await getCurrentUser();
+    if (user) {
+      setIsGuest(false);
+      router.replace('/(tabs)');
+    } else {
+      setIsGuest(false);
+      router.replace('/auth-choice');
+    }
   };
 
   const canContinue = selectedCountry && selectedCity;

@@ -13,6 +13,7 @@ export default function SettingsScreen() {
   const notificationsEnabled = useStore((s) => s.notificationsEnabled);
   const setNotificationsEnabled = useStore((s) => s.setNotificationsEnabled);
   const currentUser = useStore((s) => s.currentUser);
+  const setForceLoginOnLaunch = useStore((s) => s.setForceLoginOnLaunch);
   const [systemNotificationsEnabled, setSystemNotificationsEnabled] = useState(true);
 
   // Check system notification permissions on mount
@@ -46,7 +47,8 @@ export default function SettingsScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     try {
       await signOut();
-      router.replace('/welcome');
+      setForceLoginOnLaunch(true);
+      router.replace('/signup?mode=signin' as any);
     } catch (error) {
       console.error('Logout error:', error);
     }
